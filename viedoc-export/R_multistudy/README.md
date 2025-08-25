@@ -1,6 +1,9 @@
 # Viedoc Multi-Study Export – How to Run
+
 Designed to be as run-anywhere as possible
+
 ## What this does
+
 - Reads a CSV of studies and API credentials, rather than relying on command line arguments.
 - Starts a data export per study, polls the export until Ready, downloads the file, and saves it to a structured folder.
 - Provides fine-grained control of export folder structure
@@ -10,32 +13,33 @@ Designed to be as run-anywhere as possible
 - Logs progress and errors to a file.
 
 ## Prerequisits
+
 ### R packages
 
 ```R
 install.packages(c("logging","readr","fs","base64enc","stringr"))
 ```
 
-
 ## Configuration
 
 ### Files & paths
+
 export_file_location: existing or creatable folder where outputs + logs go.
 study_api_client_csv: path to your input CSV (see schema below).
-Windows tip: keep the path short and writable, e.g. C:/Users/<you>/Exports.
+Windows tip: keep the path short and writable, e.g. `C:/Users/<you>/Exports.`
 
 ### Main toggles (top of the script)
 
 - export_file_location – root folder for outputs and log.txt.
 - study_api_client_csv – CSV with study rows.
 - nest_by – how to structure subfolders (refered to as "level 1" and "level 2"):
-    - "STUDY" → `…/<study_ref>/<ingest_time>/...` (level_1: study_ref, level_2: ingest_time)
-    - "INGEST" → `…/<ingest_time>/<study_ref>/...` (level_1: ingest_time, level_2: study_ref)
+  - "STUDY" → `…/<study_ref>/<ingest_time>/...` (level_1: study_ref, level_2: ingest_time)
+  - "INGEST" → `…/<ingest_time>/<study_ref>/...` (level_1: ingest_time, level_2: study_ref)
 - nest_depth – how many subfolders:
-    - `0` → no subfolders; generated filename includes both level_1 and level_2
-    - `1` → one level (level_1), generated filename contains level_2
-    - `2` → two levels (level_1/level_2)
-    - `3` → three levels (level_1/level_2/<study_ref>)
+  - `0` → no subfolders; generated filename includes both level_1 and level_2
+  - `1` → one level (level_1), generated filename contains level_2
+  - `2` → two levels (level_1/level_2)
+  - `3` → three levels (level_1/level_2/<study_ref>)
 - exclude_download_name – if TRUE, don’t append the server’s filename to the saved name ({study ID}__{UTC time}).
 - exclude_generated_name – if TRUE, don’t prepend the generated prefix (study/local time) to the saved name.
 - unzip_CSVs – if TRUE and the requested outputFormat is CSV, unzip the saved .zip next to it.
@@ -44,6 +48,7 @@ Windows tip: keep the path short and writable, e.g. C:/Users/<you>/Exports.
 ### Global defaults (top of the script)
 
 The defaults list provides per-row fallback values if the CSV doesn’t include them:
+
 ```R
 defaults <- list(
   apiURL = "https://v4apistage.viedoc.net",
@@ -83,6 +88,7 @@ STUDY_B,ffffffff-1111-2222-3333-444444444444,SECRET_B,,,600,15
 > For STUDY_B, blank apiURL/tokenURL fall back to the global defaults.
 
 ### Defining the study model
+
 The [API export model](https://v4api.viedoc.net/swagger/index.html) is a json representation of the UI Export Tool in Viedoc Clinic.
 
 - Commented out = optional override of default value.
@@ -97,7 +103,7 @@ The [API export model](https://v4api.viedoc.net/swagger/index.html) is a json re
 
 > Defining the study model in the CSV can allow for imports at the site level.
 
-# What gets created (output structure)
+## What gets created (output structure)
 
 Given:
 `nest_by = "STUDY"`
@@ -110,10 +116,9 @@ You will get a path like:
 `<export_file_location>/<study_ref>/<ingest_time>/<study_ref>/<study_ref>.zip`
 …and, if unzip_CSVs = TRUE, the .zip is unzipped next to it.
 
-
 If both generated and download names are excluded, the script falls back to using <study_ref> as the basename.
 
-# Logging
+## Logging
 
 A study-specific handler is not configured, but everything is written to:
 
@@ -121,7 +126,7 @@ A study-specific handler is not configured, but everything is written to:
 
 Each study also logs progress in the same file. (You can easily add per-study log files if desired.)
 
-# Error handling & control flow
+## Error handling & control flow
 
 - Token retrieval: if OAuth fails, the study is marked failed.
 - Start export: if the API returns an error or no exportId, the study is failed.
@@ -133,18 +138,18 @@ Each study also logs progress in the same file. (You can easily add per-study lo
   - If the returned path is NULL, the study failed. With break_on_fail = TRUE the loop stops; otherwise it moves on to the next study.
   - If unzip_CSVs = TRUE and outputFormat == "CSV", the script unzips the saved archive.
 
-# Security considerations
+## Security considerations
 
 - Never log clientSecret. The script avoids printing secrets.
 - Store studies.csv in a secure location with restricted permissions.
 - Avoid committing credentials to version control.
 - Whitelist IP addresses and limit the API client scope while setting up the API client.
 
-# Troubleshooting
+## Troubleshooting
 
 - Permission denied (package install): on Windows, restart R, delete 00LOCK in your library, or install to a user library:
 
-```
+```R
 dir.create("~/Rlibs", showWarnings = FALSE)
 .libPaths(c("~/Rlibs", .libPaths()))
 install.packages("base64enc", lib="~/Rlibs")
@@ -159,8 +164,7 @@ install.packages("base64enc", lib="~/Rlibs")
 - CSV paths on Windows: use forward slashes or double backslashes:
 `C:/path/to/studies.csv` or `C:\\path\\to\\studies.csv`.
 
-
-# One-glance run steps
+## One-glance run steps
 
 - Fill out studies.csv with study_ref, clientId, clientSecret (+ optional overrides).
 - Set export_file_location, nest_by, nest_depth, and flags (unzip_CSVs, break_on_fail, etc.).
