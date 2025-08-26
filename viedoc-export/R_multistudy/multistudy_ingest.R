@@ -1,4 +1,4 @@
-# install.packages(c("logging","readr","fs","base64enc", "stringr"))
+install.packages(c("httr","jsonlite","logging","readr","fs","tools","base64enc","stringr", "rlang"))
 library(httr)
 library(jsonlite)
 library(logging)
@@ -8,7 +8,7 @@ library(tools)
 library(base64enc)
 library(stringr)
 
-export_file_location <- "C:/Users/<username>/w/ViedocExports"
+export_file_location <- "C:/Users/SylviaVanBelle/w/ViedocExports"
 study_api_client_csv <- "viedoc-export/study_list.csv"
 nest_by <- "STUDY" # export_file_location/study_ref/yymmddhhmm.file
 unzip_CSVs <- TRUE
@@ -42,6 +42,7 @@ defaults <- list( # if not specified in csv for study
     # "includeNotSigned"=FALSE,                       # Default TRUE, If FALSE, includeSignedOnly must be TRUE # NOT AVAILABLE IN ODM/XML
     # "includeSDVPerformedOrNA"=FALSE,                # Default TRUE. If FALSE, includeSDVPending must be TRUE       # NOT AVAILABLE IN ODM/XML
     # "includeSDVPending"=FALSE,                      # Default TRUE, If FALSE, includeSDVPerformedOrNA must be TRUE # NOT AVAILABLE IN ODM/XML
+    # "includePendingForms"=TRUE,                     # Default False  # NOT AVAILABLE IN ODM/XML
 
     ## -- Content (breadth) filters --##
     # "formDefIds"=list("AE"),                        # Default All
@@ -52,7 +53,6 @@ defaults <- list( # if not specified in csv for study
     #   # ~~ if includeReviewStatus: ~~
     ##   "includeSignatures=TRUE,                     # Default FALSE  # ODM/XML ONLY
     # "includeVisitDates"=TRUE,                       # Default False  # NOT AVAILABLE IN PDF
-    # "includePendingForms"=TRUE,                     # Default False  # NOT AVAILABLE IN ODM/XML
     # "includeMedicalCoding"=TRUE,                    # Default FALSE
     # "includeEditStatus"=TRUE,                       # Default FALSE  # NOT AVAILABLE IN PDF
     # "includeSubjectStatus"=TRUE,                    # Default FALSE  # NOT AVAILABLE IN PDF

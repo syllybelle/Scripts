@@ -26,3 +26,5 @@ solution: set up a static IP or private endpoint for your service
 error: no logs showing in Viedoc Admin, despite sucessful import
 potential cause: you are importing through the Web REST API,  not the WCF API.
 solution: set up a WCF API client, and use that client GUID
+
+> Note: Renv was developed for [the R multistudy export](.viedoc-export\R_multistudy\multistudy_ingest.R). Other R scripts may have different dependencies.

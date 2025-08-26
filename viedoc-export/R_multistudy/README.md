@@ -1,6 +1,6 @@
 # Viedoc Multi-Study Export – How to Run
 
-Designed to be as run-anywhere as possible
+Designed to be as run-anywhere as possible. This script can be run from the command line withoutout any arguments, or run as-is in an R session
 
 ## What this does
 
@@ -14,6 +14,17 @@ Designed to be as run-anywhere as possible
 
 ## Prerequisits
 
+- Live viedoc studies, with valid API clients
+- R (v. 4.4.2) and non-base packages listed below (see [/renv.lock] file for additional requirements)
+- csv containing export-level api parameters (e.g. study_references.csv) 
+
+
+### Viedoc study-scoped API client(s)
+
+For ***each study***, ensure you have an __active__, __unexpired__ Web API Client (NB: not a WCF API Client) set up in Viedoc Admin ([instructions](https://help.viedoc.net/c/331b7a/70102f/en/#toc-AddingaViedocWebAPIclientandobtainingtheAPIclientID3)).
+The client must be associated with a role with data export permissions, with at minimum the 'Export' scope assigned. The IP address of the computer useed to run the script (or relavent proxy) must be whitelisted (if blank, all IP address are permitted).
+The client secret and client ID must be stored in the `Study reference list` refered to below.
+
 ### R packages
 
 ```R
@@ -25,13 +36,13 @@ install.packages(c("logging","readr","fs","base64enc","stringr"))
 ### Files & paths
 
 export_file_location: existing or creatable folder where outputs + logs go.
-study_api_client_csv: path to your input CSV (see schema below).
+study_reference_client_csv: path to your input CSV (see schema below).
 Windows tip: keep the path short and writable, e.g. `C:/Users/<you>/Exports.`
 
 ### Main toggles (top of the script)
 
 - export_file_location – root folder for outputs and log.txt.
-- study_api_client_csv – CSV with study rows.
+- study_reference_client_csv – CSV with study rows.
 - nest_by – how to structure subfolders (refered to as "level 1" and "level 2"):
   - "STUDY" → `…/<study_ref>/<ingest_time>/...` (level_1: study_ref, level_2: ingest_time)
   - "INGEST" → `…/<ingest_time>/<study_ref>/...` (level_1: ingest_time, level_2: study_ref)
@@ -64,8 +75,9 @@ defaults <- list(
 
 If a column with the same name exists in the CSV and has a value for a row, it **overrides** the default for that row.
 
-### Study list schema
+### Study reference list CSV schema
 
+1 row == one export.
 - Minimum required columns:
   - study_ref – identifier used in folder/filename (does not need to match the Viedoc GUID)
   - clientId – OAuth client id for the study.
@@ -77,7 +89,7 @@ If a column with the same name exists in the CSV and has a value for a row, it *
   - check_every_n_s
   - export_model
 
-Example studies.csv
+Study_references.csv
 
 ```plaintext
 study_ref,clientId,clientSecret,apiURL,tokenURL,maximum_wait_time_in_s,check_every_n_s
@@ -141,7 +153,7 @@ Each study also logs progress in the same file. (You can easily add per-study lo
 ## Security considerations
 
 - Never log clientSecret. The script avoids printing secrets.
-- Store studies.csv in a secure location with restricted permissions.
+- Store study_references.csv in a secure location with restricted permissions.
 - Avoid committing credentials to version control.
 - Whitelist IP addresses and limit the API client scope while setting up the API client.
 
@@ -162,12 +174,13 @@ install.packages("base64enc", lib="~/Rlibs")
   - `5xx` — server issues.
 
 - CSV paths on Windows: use forward slashes or double backslashes:
-`C:/path/to/studies.csv` or `C:\\path\\to\\studies.csv`.
+`C:/path/to/study_references.csv` or `C:\\path\\to\\study_references.csv`.
 
 ## One-glance run steps
 
-- Fill out studies.csv with study_ref, clientId, clientSecret (+ optional overrides).
+- Fill out study_references.csv with study_ref, clientId, clientSecret (+ optional overrides).
 - Set export_file_location, nest_by, nest_depth, and flags (unzip_CSVs, break_on_fail, etc.).
 - Run the script.
 - Check log.txt for progress and errors.
 - Find your exports under the folder structure defined by nest_by and nest_depth.
+  
