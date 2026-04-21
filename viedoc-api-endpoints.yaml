@@ -1,3 +1,5 @@
+schema_version: 1
+
 source_of_truth:
   note: >
     These values are reference examples for this repository. The authoritative
@@ -7,40 +9,90 @@ source_of_truth:
   help_urls:
     - "https://help.viedoc.net/l/debc54/"
 
-url_types:
-  ui_urls:
-    description: >
-      Browser URLs used to access the Viedoc application. These are not the same
-      as the API base URLs used by scripts.
-    examples:
-      production_ui:
-        - "https://v4.viedoc.net/"
-  web_api_base_urls:
-    description: "Base URLs for the Viedoc Web API used by export and site/user scripts."
-    examples:
-      eu_production: "https://v4api.viedoc.net"
-      eu_training: "https://v4apitraining.viedoc.net"
-  sts_urls:
-    description: "Security token service endpoints used to obtain OAuth tokens for Web API clients."
-    examples:
-      eu_production: "https://v4sts.viedoc.net"
-  swagger_urls:
-    description: "Swagger UI for exploring the Viedoc Web API."
-    examples:
-      eu_production: "https://v4api.viedoc.net/swagger/index.html"
-  wcf_wsdl_urls:
-    description: "WCF service definitions used by the Data Import Application and related helper scripts."
-    regions:
-      eu:
-        production: "https://v4api.viedoc.net/HelipadService.svc?wsdl"
-        training: "https://v4apitraining.viedoc.net/HelipadService.svc?wsdl"
-      japan:
-        production: "https://v4apijp.viedoc.net/HelipadService.svc?wsdl"
-        training: "https://v4apitrainingjp.viedoc.net/HelipadService.svc?wsdl"
-        stage: "https://v4apistagejp.viedoc.net/HelipadService.svc?wsdl"
-      china:
-        production: "https://api.viedoc.cn/HelipadService.svc?wsdl"
-        training: "https://apitraining.viedoc.cn/HelipadService.svc?wsdl"
-      usa:
-        production: "https://api.us.viedoc.com/HelipadService.svc?wsdl"
-        training: "https://apitraining.us.viedoc.com/HelipadService.svc?wsdl"
+usage_notes:
+  clinic: "Browser URL used to access the Viedoc application UI."
+  web_api_base: "Base URL for the Viedoc Web API used by export and site/user scripts."
+  sts_base: "Base URL for the security token service host."
+  sts_token: "Token endpoint used by Web API clients to obtain OAuth tokens."
+  swagger: "Swagger UI for exploring the Viedoc Web API."
+  wcf_wsdl: "WSDL URL for the WCF API used with the Data Import Application."
+
+regions:
+  eu:
+    label: "EU"
+    environments:
+      production:
+        clinic: "https://v4.viedoc.net/"
+        web_api_base: "https://v4api.viedoc.net"
+        sts_base: "https://v4sts.viedoc.net"
+        sts_token: "https://v4sts.viedoc.net/connect/token"
+        swagger: "https://v4api.viedoc.net/swagger/index.html"
+        wcf_wsdl: "https://v4api.viedoc.net/HelipadService.svc?wsdl"
+      training:
+        clinic: "https://v4training.viedoc.net/"
+        web_api_base: "https://v4apitraining.viedoc.net"
+        sts_base: "https://v4ststraining.viedoc.net"
+        sts_token: "https://v4ststraining.viedoc.net/connect/token"
+        swagger: "https://v4apitraining.viedoc.net/swagger/index.html"
+        wcf_wsdl: "https://v4apitraining.viedoc.net/HelipadService.svc?wsdl"
+
+  japan:
+    label: "Japan"
+    environments:
+      production:
+        clinic: "https://v4jp.viedoc.net/"
+        web_api_base: "https://v4apijp.viedoc.net"
+        sts_base: "https://v4stsjp.viedoc.net"
+        sts_token: "https://v4stsjp.viedoc.net/connect/token"
+        swagger: "https://v4apijp.viedoc.net/swagger/index.html"
+        wcf_wsdl: "https://v4apijp.viedoc.net/HelipadService.svc?wsdl"
+      training:
+        clinic: "https://v4trainingjp.viedoc.net/"
+        web_api_base: "https://v4apitrainingjp.viedoc.net"
+        sts_base: "https://v4ststrainingjp.viedoc.net"
+        sts_token: "https://v4ststrainingjp.viedoc.net/connect/token"
+        swagger: "https://v4apitrainingjp.viedoc.net/swagger/index.html"
+        wcf_wsdl: "https://v4apitrainingjp.viedoc.net/HelipadService.svc?wsdl"
+      stage:
+        clinic: null
+        web_api_base: "https://v4apistagejp.viedoc.net"
+        sts_base: null
+        sts_token: null
+        swagger: "https://v4apistagejp.viedoc.net/swagger/index.html"
+        wcf_wsdl: "https://v4apistagejp.viedoc.net/HelipadService.svc?wsdl"
+
+  china:
+    label: "China"
+    environments:
+      production:
+        clinic: "https://clinic.viedoc.cn/"
+        web_api_base: "https://api.viedoc.cn"
+        sts_base: null
+        sts_token: null
+        swagger: "https://api.viedoc.cn/swagger/index.html"
+        wcf_wsdl: "https://api.viedoc.cn/HelipadService.svc?wsdl"
+      training:
+        clinic: "https://clinictraining.viedoc.cn/"
+        web_api_base: "https://apitraining.viedoc.cn"
+        sts_base: "https://ststraining.viedoc.cn"
+        sts_token: "https://ststraining.viedoc.cn/connect/token"
+        swagger: "https://apitraining.viedoc.cn/swagger/index.html"
+        wcf_wsdl: "https://apitraining.viedoc.cn/HelipadService.svc?wsdl"
+
+  usa:
+    label: "USA"
+    environments:
+      production:
+        clinic: "https://clinic.us.viedoc.com/"
+        web_api_base: "https://api.us.viedoc.com"
+        sts_base: "https://sts.us.viedoc.com"
+        sts_token: "https://sts.us.viedoc.com/connect/token"
+        swagger: "https://api.us.viedoc.com/swagger/index.html"
+        wcf_wsdl: "https://api.us.viedoc.com/HelipadService.svc?wsdl"
+      training:
+        clinic: "https://clinictraining.us.viedoc.com/"
+        web_api_base: "https://apitraining.us.viedoc.com"
+        sts_base: "https://ststraining.us.viedoc.com"
+        sts_token: "https://ststraining.us.viedoc.com/connect/token"
+        swagger: "https://apitraining.us.viedoc.com/swagger/index.html"
+        wcf_wsdl: "https://apitraining.us.viedoc.com/HelipadService.svc?wsdl"
