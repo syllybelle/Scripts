@@ -1,0 +1,46 @@
+source_of_truth:
+  note: >
+    These values are reference examples for this repository. The authoritative
+    values remain the URLs shown during API client setup in Viedoc Admin and the
+    endpoint lists published in Viedoc Help.
+  viedoc_admin: "Use the exact URLs shown when the API client is created in Viedoc Admin."
+  help_urls:
+    - "https://help.viedoc.net/l/debc54/"
+
+url_types:
+  ui_urls:
+    description: >
+      Browser URLs used to access the Viedoc application. These are not the same
+      as the API base URLs used by scripts.
+    examples:
+      production_ui:
+        - "https://v4.viedoc.net/"
+  web_api_base_urls:
+    description: "Base URLs for the Viedoc Web API used by export and site/user scripts."
+    examples:
+      eu_production: "https://v4api.viedoc.net"
+      eu_training: "https://v4apitraining.viedoc.net"
+  sts_urls:
+    description: "Security token service endpoints used to obtain OAuth tokens for Web API clients."
+    examples:
+      eu_production: "https://v4sts.viedoc.net"
+  swagger_urls:
+    description: "Swagger UI for exploring the Viedoc Web API."
+    examples:
+      eu_production: "https://v4api.viedoc.net/swagger/index.html"
+  wcf_wsdl_urls:
+    description: "WCF service definitions used by the Data Import Application and related helper scripts."
+    regions:
+      eu:
+        production: "https://v4api.viedoc.net/HelipadService.svc?wsdl"
+        training: "https://v4apitraining.viedoc.net/HelipadService.svc?wsdl"
+      japan:
+        production: "https://v4apijp.viedoc.net/HelipadService.svc?wsdl"
+        training: "https://v4apitrainingjp.viedoc.net/HelipadService.svc?wsdl"
+        stage: "https://v4apistagejp.viedoc.net/HelipadService.svc?wsdl"
+      china:
+        production: "https://api.viedoc.cn/HelipadService.svc?wsdl"
+        training: "https://apitraining.viedoc.cn/HelipadService.svc?wsdl"
+      usa:
+        production: "https://api.us.viedoc.com/HelipadService.svc?wsdl"
+        training: "https://apitraining.us.viedoc.com/HelipadService.svc?wsdl"

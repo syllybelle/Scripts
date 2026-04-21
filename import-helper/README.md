@@ -2,6 +2,17 @@
 
 This application helps with the setup of data imports via the Data Import Application.
 
+## Endpoint reference
+
+This tool uses the Viedoc WCF API, not the Viedoc Web API.
+
+The source of truth for WCF endpoints remains:
+
+- the exact values shown during API client setup in Viedoc Admin
+- the endpoint lists published by Viedoc Help: <https://help.viedoc.net/l/debc54/>
+
+For the repository reference list of Viedoc UI, Web API, STS, Swagger, and WCF URLs, see [../viedoc-api-endpoints.yaml](../viedoc-api-endpoints.yaml).
+
 - Create your data mappings in Viedoc Designer - Global Design Settings.
 - Publish your Global Design Settings and download the mapping files.
 - Create one main folder for your imports and place all your mapping files in it.

@@ -2,6 +2,17 @@
 
 `multistudy_ingest.py` runs the Viedoc export flow for multiple studies from one CSV.
 
+## Endpoint reference
+
+This tool uses the Viedoc Web API and its STS token endpoint.
+
+The source of truth for the API base URL and STS URL remains:
+
+- the exact values shown during API client setup in Viedoc Admin
+- the endpoint lists published by Viedoc Help: <https://help.viedoc.net/l/debc54/>
+
+For the repository reference list of Viedoc UI, Web API, STS, Swagger, and WCF URLs, see [../viedoc-api-endpoints.yaml](../viedoc-api-endpoints.yaml).
+
 ## Why use this
 
 - Less typing: credentials and per-study settings live in one sheet.

@@ -8,6 +8,17 @@ These Python and R scripts trigger and download exports from Viedoc EDC. They in
 
 For multi-study Python runs, see [multistudy_ingest.md](./multistudy_ingest.md).
 
+## Endpoint reference
+
+This tool uses the Viedoc Web API and its STS token endpoint.
+
+The source of truth for the API base URL and STS URL remains:
+
+- the exact values shown during API client setup in Viedoc Admin
+- the endpoint lists published by Viedoc Help: <https://help.viedoc.net/l/debc54/>
+
+For the repository reference list of Viedoc UI, Web API, STS, Swagger, and WCF URLs, see [../viedoc-api-endpoints.yaml](../viedoc-api-endpoints.yaml).
+
 ## Usage
 To run the Viedoc Export Script, use the following command:
 
@@ -16,7 +27,7 @@ To run the Viedoc Export Script, use the following command:
 Install dependencies
 
 ```sh
-pip install requests
+pip install -r requirements.txt
 ```
 Run:
 
