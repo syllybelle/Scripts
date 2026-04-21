@@ -1,6 +1,6 @@
 # Viedoc Export Script
 
-These Python and R scripts triggers and downloads exports from Viedoc EDC. They include functionalities to:
+These Python and R scripts trigger and download exports from Viedoc EDC. They include functionalities to:
 - Authenticate and obtain an access token.
 - Initiate the export process.
 - Check the status of the export.
@@ -19,12 +19,16 @@ pip install requests
 Run:
 
 ```sh
-python viedoc_export.py --token_url <TOKEN_URL> --api_url <API_URL> --client_id <CLIENT_ID> --client_secret <CLIENT_SECRET> --export_model <EXPORT_MODEL> [--output_path <OUTPUT_PATH>][--extract_zip Y/N] [--remove_prefix Y/N]
+python viedoc_export.py --token_url <TOKEN_URL> --api_url <API_URL> --client_id <CLIENT_ID> --client_secret <CLIENT_SECRET> --export_model <EXPORT_MODEL_OR_JSON_FILE> [--output_path <OUTPUT_DIR>] [--extract_zip Y/N] [--remove_prefix Y/N]
 ```
-Example:
+Examples:
 
 ```sh
 python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/token" --api_url "https://v4apitraining.viedoc.net" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model '{"outputFormat":"CSV","includeVisitDates":true}'
+```
+
+```sh
+python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/token" --api_url "https://v4apitraining.viedoc.net" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
 ```
 
 - For R:
@@ -50,11 +54,14 @@ Rscript viedoc_export.R --token_url "https://v4ststraining.viedoc.net/connect/to
 - --api_url: Base URL for the Viedoc API.
 - --client_id: Client ID for authentication.
 - --client_secret: Client secret for authentication.
-- --export_model: JSON string representing the export model. Ex. 
-
-```
-{"outputFormat":"CSV","includeVisitDates":false,"includeEditStatus":false,"includeSignatures":false,"includeReviewStatus":false,"includeSdv":false,"includeQueries":false,"includeQueryHistory":false,"includeSubjectStatus":false,"includePendingForms":false}"
-```
-
+- --export_model: Inline JSON, a JSON file path, or `@path/to/file.json`. For less error-prone runs, start from [export_model.example.json](./export_model.example.json).
+- --output_path: Output directory. Defaults to `out`.
 - --extract_zip: (Optional) Extract the zip file if set to Y. Default is Y.
-- --remove_prefix: (Optional) Remove the prefix from extracted files if set to Y. Default is Y.
+- --remove_prefix: (Optional) Remove the download filename prefix from extracted files if set to Y. Default is Y.
+- --timeout_seconds: (Optional) Per-request timeout. Default is 60.
+- --poll_interval_seconds: (Optional) Seconds between export status checks. Default is 10.
+- --max_wait_seconds: (Optional) Maximum total wait time for the export to become ready. Default is 600.
+
+```
+{"outputFormat":"CSV","includeVisitDates":false,"includeEditStatus":false,"includeSignatures":false,"includeReviewStatus":false,"includeSdv":false,"includeQueries":false,"includeQueryHistory":false,"includeSubjectStatus":false,"includePendingForms":false}
+```
