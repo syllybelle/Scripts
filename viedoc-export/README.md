@@ -6,6 +6,8 @@ These Python and R scripts trigger and download exports from Viedoc EDC. They in
 - Check the status of the export.
 - Download and optionally extract the exported files.
 
+For multi-study Python runs, see [multistudy_ingest.md](./multistudy_ingest.md).
+
 ## Usage
 To run the Viedoc Export Script, use the following command:
 
