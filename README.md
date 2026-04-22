@@ -27,6 +27,7 @@ The source of truth for these endpoints remains:
 For a centralized reference used by this repository, see [viedoc-api-endpoints.yaml](./viedoc-api-endpoints.yaml).
 
 ## Overview of the repository
+- [API helpers](./api_helpers/): Shared Python helpers that resolve Viedoc endpoints from [viedoc-api-endpoints.yaml](./viedoc-api-endpoints.yaml) using region/environment selection plus optional URL overrides.
 - [Import helper](./import-helper/README.md): 
   - Python script to assist with local setup when using the [Viedoc Data Import Application](https://help.viedoc.net/c/331b7a/cf6a45/en/) (requires a Viedoc WCF API client).
 - [Viedoc site & user import tool](./add-sites-and-users/README.md): 
@@ -37,4 +38,3 @@ For a centralized reference used by this repository, see [viedoc-api-endpoints.y
 ## Changelog
 - 2024 May: initial repo creation, upload of export script.
 - 2025 Feb: Addition of site/user import tool & import helper scripts from internal archive
-

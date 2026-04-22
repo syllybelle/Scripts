@@ -6,11 +6,18 @@ import argparse
 import csv
 import logging
 import re
+import sys
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from api_helpers import DEFAULT_ENDPOINTS_FILE, EndpointConfig, load_endpoint_resolver
 
 from viedoc_export import (
     DEFAULT_MAX_WAIT_SECONDS,
@@ -25,8 +32,8 @@ from viedoc_export import (
 
 
 LOGGER = logging.getLogger("multistudy_ingest")
-DEFAULT_API_URL = "https://v4api.viedoc.net"
-DEFAULT_TOKEN_URL = "https://v4sts.viedoc.net/connect/token"
+DEFAULT_REGION = "eu"
+DEFAULT_ENVIRONMENT = "production"
 DEFAULT_EXPORT_MODEL = '{"outputFormat":"CSV"}'
 DEFAULT_OUTPUT_DIR = Path("out") / "multistudy"
 TRUE_VALUES = {"1", "true", "t", "yes", "y"}
@@ -39,6 +46,8 @@ class StudyJob:
     study_ref: str
     client_id: str
     client_secret: str
+    region: str
+    environment: str
     api_url: str
     token_url: str
     export_model: dict[str, Any]
@@ -116,6 +125,24 @@ def normalize_export_model_input(raw_value: str, base_dir: Path) -> str:
     return candidate
 
 
+def resolve_job_endpoints(
+    resolver: Any,
+    *,
+    default_region: str,
+    default_environment: str,
+    region: str | None,
+    environment: str | None,
+    api_url: str | None,
+    token_url: str | None,
+) -> EndpointConfig:
+    return resolver.resolve(
+        region=region or default_region,
+        environment=environment or default_environment,
+        web_api=api_url,
+        sts=token_url,
+    )
+
+
 def build_output_path(
     *,
     root_dir: Path,
@@ -167,8 +194,11 @@ def attach_file_logger(log_file: Path) -> None:
 def load_study_jobs(
     csv_path: Path,
     *,
-    default_api_url: str,
-    default_token_url: str,
+    endpoints_file: str,
+    default_region: str,
+    default_environment: str,
+    default_api_url: str | None,
+    default_token_url: str | None,
     default_export_model_raw: str,
     default_timeout_seconds: int,
     default_poll_interval_seconds: int,
@@ -179,6 +209,7 @@ def load_study_jobs(
     if not csv_path.is_file():
         raise FileNotFoundError(f"Study CSV was not found: {csv_path}")
 
+    resolver = load_endpoint_resolver(endpoints_file)
     jobs: list[StudyJob] = []
     with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle)
@@ -200,6 +231,17 @@ def load_study_jobs(
 
             export_model_raw = first_value(row, "export_model", "exportModel") or default_export_model_raw
             try:
+                resolved_endpoints = resolve_job_endpoints(
+                    resolver,
+                    default_region=default_region,
+                    default_environment=default_environment,
+                    region=first_value(row, "region"),
+                    environment=first_value(row, "environment"),
+                    api_url=first_value(row, "api_url", "apiURL") or default_api_url,
+                    token_url=first_value(row, "token_url", "tokenURL") or default_token_url,
+                )
+                if not resolved_endpoints.web_api or not resolved_endpoints.sts:
+                    raise ValueError("Could not determine both Web API and token URLs.")
                 export_model = parse_export_model(normalize_export_model_input(export_model_raw, csv_path.parent))
                 timeout_seconds = parse_positive_int_text(
                     first_value(row, "timeout_seconds", "timeoutSeconds"),
@@ -229,8 +271,10 @@ def load_study_jobs(
                     study_ref=study_ref,
                     client_id=client_id,
                     client_secret=client_secret,
-                    api_url=first_value(row, "api_url", "apiURL") or default_api_url,
-                    token_url=first_value(row, "token_url", "tokenURL") or default_token_url,
+                    region=resolved_endpoints.region,
+                    environment=resolved_endpoints.environment,
+                    api_url=str(resolved_endpoints.web_api),
+                    token_url=str(resolved_endpoints.sts),
                     export_model=export_model,
                     timeout_seconds=timeout_seconds,
                     poll_interval_seconds=poll_interval_seconds,
@@ -280,7 +324,13 @@ def run_study_export(
         timeout_seconds=job.timeout_seconds,
     )
 
-    LOGGER.info("Starting study %s", job.study_ref)
+    LOGGER.info(
+        "Starting study %s region=%s environment=%s api=%s",
+        job.study_ref,
+        job.region,
+        job.environment,
+        job.api_url,
+    )
     export_id = client.start_export(job.export_model)
     client.wait_for_export(
         export_id,
@@ -337,14 +387,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Root directory for exported files, logs, and the run summary",
     )
     parser.add_argument(
+        "--endpoints_file",
+        default=str(DEFAULT_ENDPOINTS_FILE),
+        help="Path to the Viedoc endpoint YAML reference file",
+    )
+    parser.add_argument(
+        "--region",
+        default=DEFAULT_REGION,
+        help=f"Default region for study rows that do not override it (default: {DEFAULT_REGION})",
+    )
+    parser.add_argument(
+        "--environment",
+        default=DEFAULT_ENVIRONMENT,
+        help=f"Default environment for study rows that do not override it (default: {DEFAULT_ENVIRONMENT})",
+    )
+    parser.add_argument(
         "--api_url",
-        default=DEFAULT_API_URL,
-        help=f"Default Viedoc Web API URL when the CSV row does not override it (default: {DEFAULT_API_URL})",
+        help="Default Viedoc Web API URL override when the CSV row does not override it",
     )
     parser.add_argument(
         "--token_url",
-        default=DEFAULT_TOKEN_URL,
-        help=f"Default token URL when the CSV row does not override it (default: {DEFAULT_TOKEN_URL})",
+        help="Default token URL override when the CSV row does not override it",
     )
     parser.add_argument(
         "--export_model",
@@ -446,6 +509,9 @@ def main() -> int:
     study_csv = resolve_path(args.study_csv)
     jobs = load_study_jobs(
         study_csv,
+        endpoints_file=args.endpoints_file,
+        default_region=args.region,
+        default_environment=args.environment,
         default_api_url=args.api_url,
         default_token_url=args.token_url,
         default_export_model_raw=args.export_model,
@@ -462,6 +528,7 @@ def main() -> int:
 
     LOGGER.info("Loaded %s study rows from %s", len(jobs), study_csv)
     LOGGER.info("Output root: %s", output_root)
+    LOGGER.info("Default region=%s environment=%s endpoints_file=%s", args.region, args.environment, args.endpoints_file)
 
     for job in jobs:
         try:

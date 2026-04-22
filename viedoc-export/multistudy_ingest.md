@@ -32,7 +32,7 @@ pip install requests
 3. Run:
 
 ```sh
-python multistudy_ingest.py --study_csv study_list.example.csv --export_model export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
+python multistudy_ingest.py --study_csv study_list.example.csv --region eu --environment production --export_model export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
 ```
 
 ## Minimum CSV columns
@@ -43,6 +43,8 @@ python multistudy_ingest.py --study_csv study_list.example.csv --export_model ex
 
 ## Optional CSV override columns
 
+- `region`
+- `environment`
 - `api_url` or `apiURL`
 - `token_url` or `tokenURL`
 - `export_model` or `exportModel`
@@ -55,6 +57,8 @@ python multistudy_ingest.py --study_csv study_list.example.csv --export_model ex
 - `remove_prefix` or `removePrefix`
 
 `export_model` can be inline JSON, a JSON file path, or `@path/to/file.json`.
+
+The script first resolves endpoints from [../viedoc-api-endpoints.yaml](../viedoc-api-endpoints.yaml) using `region` and `environment`, then applies any explicit URL overrides and infers missing values where possible.
 
 ## Default output behavior
 

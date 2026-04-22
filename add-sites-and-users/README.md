@@ -57,7 +57,7 @@ Then run the application:\
 
 Upon starting the application, the following will happen:\
 1. You will be asked to select an output folder. Here, a log file and Excel files will be saved. Make sure you have write permission to this folder.\
-2. You will be asked which server the application should connect to. Type the corresponding value and press Enter.\
+2. You will be asked which region/environment the application should connect to. The application resolves the URLs from the shared endpoint YAML and then allows optional manual overrides from Viedoc Admin.\
 3. You will be asked to provide the Client ID and Client Secret. These are found in Viedoc Admin.\
 4. The application will now obtain a token from the configured Viedoc STS endpoint, which is required for authentication purposes during the next steps.\
 5. You will next be presented with a number of options. Type the number corresponding to the desired functionality and press Enter.\

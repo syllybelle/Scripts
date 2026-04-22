@@ -32,16 +32,20 @@ pip install -r requirements.txt
 Run:
 
 ```sh
-python viedoc_export.py --token_url <TOKEN_URL> --api_url <API_URL> --client_id <CLIENT_ID> --client_secret <CLIENT_SECRET> --export_model <EXPORT_MODEL_OR_JSON_FILE> [--output_path <OUTPUT_DIR>] [--extract_zip Y/N] [--remove_prefix Y/N]
+python viedoc_export.py --region <REGION> --environment <ENVIRONMENT> --client_id <CLIENT_ID> --client_secret <CLIENT_SECRET> --export_model <EXPORT_MODEL_OR_JSON_FILE> [--output_path <OUTPUT_DIR>] [--extract_zip Y/N] [--remove_prefix Y/N]
 ```
 Examples:
 
 ```sh
-python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/token" --api_url "https://v4apitraining.viedoc.net" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model '{"outputFormat":"CSV","includeVisitDates":true}'
+python viedoc_export.py --region eu --environment training --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model '{"outputFormat":"CSV","includeVisitDates":true}'
 ```
 
 ```sh
-python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/token" --api_url "https://v4apitraining.viedoc.net" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
+python viedoc_export.py --region eu --environment training --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
+```
+
+```sh
+python viedoc_export.py --region usa --environment production --api_url "https://api.us.viedoc.com" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model export_model.example.json
 ```
 
 - For R:
@@ -65,6 +69,9 @@ Rscript viedoc_export.R --token_url "https://v4ststraining.viedoc.net/connect/to
 ## Arguments:
 - --token_url: URL to get the authentication token.
 - --api_url: Base URL for the Viedoc API.
+- --region: Region key from [../viedoc-api-endpoints.yaml](../viedoc-api-endpoints.yaml), for example `eu`, `usa`, `japan`, `china`.
+- --environment: Environment key from the endpoint YAML, for example `production` or `training`.
+- --api_url / --token_url: Optional overrides. If one is omitted, the script tries to infer it from the YAML and the provided override(s).
 - --client_id: Client ID for authentication.
 - --client_secret: Client secret for authentication.
 - --export_model: Inline JSON, a JSON file path, or `@path/to/file.json`. For less error-prone runs, start from [export_model.example.json](./export_model.example.json).

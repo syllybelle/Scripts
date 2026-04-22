@@ -19,6 +19,7 @@ For the repository reference list of Viedoc UI, Web API, STS, Swagger, and WCF U
 - Create a WCF API client in Viedoc Admin. Copy the GUID.
 - Run this application (requires [python installation](https://www.python.org/downloads/)).
   - Open a terminal in the directory containing importHelper.py.
+  - Install dependencies using `pip install -r requirements.txt`
   - run the application using `python importHelper.py`
   - input the information as requested
 - Download the Data Import Application from Viedoc Designer.

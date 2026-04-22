@@ -7,6 +7,7 @@ import io
 import json
 import logging
 import shutil
+import sys
 import time
 import urllib.parse
 import zipfile
@@ -23,6 +24,12 @@ except ImportError as exc:  # pragma: no cover - dependency validation only
     REQUESTS_IMPORT_ERROR = exc
 else:
     REQUESTS_IMPORT_ERROR = None
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from api_helpers import DEFAULT_ENDPOINTS_FILE, EndpointConfig, load_endpoint_resolver
 
 
 LOGGER = logging.getLogger("viedoc_export")
@@ -320,8 +327,19 @@ def download_and_save_export(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Download a single Viedoc export.")
-    parser.add_argument("--token_url", required=True, help="OAuth token endpoint URL")
-    parser.add_argument("--api_url", required=True, help="Base Viedoc Web API URL")
+    parser.add_argument(
+        "--endpoints_file",
+        default=str(DEFAULT_ENDPOINTS_FILE),
+        help="Path to the Viedoc endpoint YAML reference file",
+    )
+    parser.add_argument("--region", help="Region key from the endpoint YAML, for example eu, usa, japan, china")
+    parser.add_argument(
+        "--environment",
+        help="Environment key from the endpoint YAML, for example production or training",
+    )
+    parser.add_argument("--token_url", help="OAuth token endpoint URL override")
+    parser.add_argument("--api_url", help="Base Viedoc Web API URL override")
+    parser.add_argument("--swagger_url", help="Swagger URL override")
     parser.add_argument("--client_id", required=True, help="API client ID")
     parser.add_argument("--client_secret", required=True, help="API client secret")
     parser.add_argument(
@@ -387,6 +405,32 @@ def ensure_requests_available() -> None:
         )
 
 
+def resolve_web_api_endpoints(args: argparse.Namespace) -> EndpointConfig:
+    has_region_and_environment = bool(args.region and args.environment)
+    has_direct_urls = bool(args.api_url or args.token_url or args.swagger_url)
+    if not has_region_and_environment and not has_direct_urls:
+        raise ValueError(
+            "Provide --region and --environment, or explicit URL overrides such as --api_url/--token_url."
+        )
+
+    region = args.region if has_region_and_environment else "eu"
+    environment = args.environment if has_region_and_environment else "production"
+
+    resolver = load_endpoint_resolver(args.endpoints_file)
+    config = resolver.resolve(
+        region=region,
+        environment=environment,
+        web_api=args.api_url,
+        sts=args.token_url,
+        swagger=args.swagger_url,
+    )
+    if not config.web_api or not config.sts:
+        raise ValueError(
+            "Could not determine both Web API and token URLs from the endpoint YAML and provided overrides."
+        )
+    return config
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -399,18 +443,21 @@ def main() -> int:
 
     export_model = parse_export_model(args.export_model)
     output_dir = Path(args.output_dir).expanduser()
+    endpoints = resolve_web_api_endpoints(args)
 
     LOGGER.info("ViedocExport@2")
-    LOGGER.info("Token URL: %s", args.token_url)
-    LOGGER.info("API URL: %s", args.api_url.rstrip("/"))
+    LOGGER.info("Region: %s", endpoints.region)
+    LOGGER.info("Environment: %s", endpoints.environment)
+    LOGGER.info("Token URL: %s", endpoints.sts)
+    LOGGER.info("API URL: %s", endpoints.web_api)
     LOGGER.info("Output directory: %s", output_dir)
     LOGGER.info("Client ID: %s", mask_value(args.client_id))
     LOGGER.info("Client secret: %s", mask_value(args.client_secret))
     LOGGER.info("Export model: %s", json.dumps(export_model, separators=(",", ":")))
 
     client = ViedocExportClient(
-        token_url=args.token_url,
-        api_url=args.api_url,
+        token_url=str(endpoints.sts),
+        api_url=str(endpoints.web_api),
         client_id=args.client_id,
         client_secret=args.client_secret,
         timeout_seconds=args.timeout_seconds,
