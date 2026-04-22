@@ -2,6 +2,22 @@
 
 `multistudy_ingest.py` runs the Viedoc export flow for multiple studies from one CSV.
 
+## Script summary
+
+### `multistudy_ingest.py`
+- Purpose: Run multiple Viedoc export jobs from one CSV so repeated study exports can be executed consistently.
+- Inputs:
+  - a study CSV with one row per export job
+  - default region/environment or optional URL overrides
+  - per-study client credentials
+  - export model JSON, inline or file-based
+  - output layout and polling settings
+- Outputs:
+  - one output file per study export
+  - optional extracted CSV contents for zip exports
+  - `log.txt`
+  - `run_summary_<timestamp>.csv`
+
 ## Endpoint reference
 
 This tool uses the Viedoc Web API and its STS token endpoint.

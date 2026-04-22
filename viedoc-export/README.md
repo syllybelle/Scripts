@@ -8,6 +8,29 @@ These Python and R scripts trigger and download exports from Viedoc EDC. They in
 
 For multi-study Python runs, see [multistudy_ingest.md](./multistudy_ingest.md).
 
+## Script summary
+
+### `viedoc_export.py`
+- Purpose: Run one Viedoc export for one study through the Web API.
+- Inputs:
+  - region/environment or explicit API URL overrides
+  - Web API client ID and client secret
+  - export model JSON, inline or file-based
+  - output folder and optional zip/polling settings
+- Outputs:
+  - a downloaded export file in the output folder, or extracted export contents if zip extraction is enabled
+  - CLI log output describing token retrieval, export progress, and final output location
+
+### `viedoc_export.R`
+- Purpose: R version of the same single-study export flow.
+- Inputs:
+  - token URL and API URL
+  - Web API client ID and client secret
+  - export model JSON
+  - output folder and optional zip settings
+- Outputs:
+  - a downloaded export file in the output folder, or extracted export contents if zip extraction is enabled
+
 ## Endpoint reference
 
 This tool uses the Viedoc Web API and its STS token endpoint.
@@ -18,6 +41,15 @@ The source of truth for the API base URL and STS URL remains:
 - the endpoint lists published by Viedoc Help: <https://help.viedoc.net/l/debc54/>
 
 For the repository reference list of Viedoc UI, Web API, STS, Swagger, and WCF URLs, see [../viedoc-api-endpoints.yaml](../viedoc-api-endpoints.yaml).
+
+## Prerequisites
+
+- Python installed locally.
+- Python dependencies installed from `requirements.txt` for the Python script.
+- A Viedoc study that is reachable from the selected environment.
+- A Viedoc Web API client configured for that study in Viedoc Admin.
+- The API client ID and client secret for that Web API client.
+- API client permissions that allow data export.
 
 ## Usage
 To run the Viedoc Export Script, use the following command:

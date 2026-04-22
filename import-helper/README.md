@@ -2,6 +2,22 @@
 
 This application helps with the setup of data imports via the Data Import Application.
 
+## Script summary
+
+### `importHelper.py`
+- Purpose: Creates the Viedoc Data Import Application configuration file and import folder structure from existing mapping files.
+- Inputs:
+  - a folder containing mapping XML files
+  - one representative CSV file so the delimiter can be detected
+  - region/environment selection and optional WCF endpoint override
+  - study GUID from Viedoc Admin
+  - email address for the importing account
+  - whether imports may create subjects and initiate events
+- Outputs:
+  - `config.xml` in the selected import root folder
+  - one subfolder per mapping XML file, with the mapping file moved into that subfolder
+  - console warnings for common mapping-file issues
+
 ## Endpoint reference
 
 This tool uses the Viedoc WCF API, not the Viedoc Web API.
