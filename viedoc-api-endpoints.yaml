@@ -1,91 +1,75 @@
-schema_version: 1
 
-source_of_truth:
-  note: >
-    These values are reference examples for this repository. The authoritative
-    values remain the URLs shown during API client setup in Viedoc Admin and the
-    endpoint lists published in Viedoc Help.
-  viedoc_admin: "Use the exact URLs shown when the API client is created in Viedoc Admin."
-  help_urls:
-    - "https://help.viedoc.net/l/debc54/"
-
-usage_notes:
-  clinic: "Browser URL used to access the Viedoc application UI."
-  web_api_base: "Base URL for the Viedoc Web API used by export and site/user scripts."
-  sts_base: "Base URL for the security token service host."
-  sts_token: "Token endpoint used by Web API clients to obtain OAuth tokens."
-  swagger: "Swagger UI for exploring the Viedoc Web API."
-  wcf_wsdl: "WSDL URL for the WCF API used with the Data Import Application."
+note: 
+  source_of_truth: 
+    viedoc_admin: "Use the exact URLs shown when the API client is created in Viedoc Admin."
+    help_urls:
+      - "https://help.viedoc.net/l/debc54"
+  usage:
+    clinic: "Browser URL used to access the Viedoc application UI."
+    web_api: "Base URL for the Viedoc Web API used by export and site/user scripts."
+    sts: "Base URL for the OAuth security token service host. Token retrieved from {base}/connect/token endpoint."
+    swagger: "Swagger UI for exploring the Viedoc Web API." 
+    wcf_wsdl: "WSDL URL for the WCF API used with the Data Import Application."
+  pattern: 
+    web_api: "https://{prefix}api{env_qualifier}{region}.viedoc.{tld}"
+    sts:     "https://{prefix}sts{env_qualifier}{region}.viedoc.{tld}"
+    swagger: "https://{prefix}api{env_qualifier}{region}.viedoc.{tld}/swagger/index.html"
+    wcf_wsdl: "https://{prefix}api{env_qualifier}{region}.viedoc.{tld}/HelipadService.svc?wsdl"
 
 regions:
   eu:
-    label: "EU"
     environments:
-      production:
-        clinic: "https://v4.viedoc.net/"
-        web_api_base: "https://v4api.viedoc.net"
-        sts_base: "https://v4sts.viedoc.net"
-        sts_token: "https://v4sts.viedoc.net/connect/token"
-        swagger: "https://v4api.viedoc.net/swagger/index.html"
+      production: 
+        clinic:   "https://v4.viedoc.net"
+        web_api:  "https://v4api.viedoc.net"
+        sts:      "https://v4sts.viedoc.net"
+        swagger:  "https://v4api.viedoc.net/swagger/index.html"
         wcf_wsdl: "https://v4api.viedoc.net/HelipadService.svc?wsdl"
-      training:
-        clinic: "https://v4training.viedoc.net/"
-        web_api_base: "https://v4apitraining.viedoc.net"
-        sts_base: "https://v4ststraining.viedoc.net"
-        sts_token: "https://v4ststraining.viedoc.net/connect/token"
-        swagger: "https://v4apitraining.viedoc.net/swagger/index.html"
-        wcf_wsdl: "https://v4apitraining.viedoc.net/HelipadService.svc?wsdl"
-
+      training: 
+        clinic:    "https://v4training.viedoc.net"
+        web_api:   "https://v4apitraining.viedoc.net"
+        sts:       "https://v4ststraining.viedoc.net"
+        swagger:   "https://v4apitraining.viedoc.net/swagger/index.html"
+        wcf_wsdl:  "https://v4apitraining.viedoc.net/HelipadService.svc?wsdl"
   japan:
-    label: "Japan"
     environments:
-      production:
-        clinic: "https://v4jp.viedoc.net/"
-        web_api_base: "https://v4apijp.viedoc.net"
-        sts_base: "https://v4stsjp.viedoc.net"
-        sts_token: "https://v4stsjp.viedoc.net/connect/token"
-        swagger: "https://v4apijp.viedoc.net/swagger/index.html"
+      production: 
+        clinic:   "https://v4jp.viedoc.net"
+        web_api:  "https://v4apijp.viedoc.net"
+        sts:      "https://v4stsjp.viedoc.net"
+        swagger:  "https://v4apijp.viedoc.net/swagger/index.html"
         wcf_wsdl: "https://v4apijp.viedoc.net/HelipadService.svc?wsdl"
-      training:
-        clinic: "https://v4trainingjp.viedoc.net/"
-        web_api_base: "https://v4apitrainingjp.viedoc.net"
-        sts_base: "https://v4ststrainingjp.viedoc.net"
-        sts_token: "https://v4ststrainingjp.viedoc.net/connect/token"
-        swagger: "https://v4apitrainingjp.viedoc.net/swagger/index.html"
+      training: 
+        clinic:   "https://v4trainingjp.viedoc.net"
+        web_api:  "https://v4apitrainingjp.viedoc.net"
+        sts:      "https://v4ststrainingjp.viedoc.net"
+        swagger:  "https://v4apitrainingjp.viedoc.net/swagger/index.html"
         wcf_wsdl: "https://v4apitrainingjp.viedoc.net/HelipadService.svc?wsdl"
-
   china:
-    label: "China"
     environments:
-      production:
-        clinic: "https://clinic.viedoc.cn/"
-        web_api_base: "https://api.viedoc.cn"
-        sts_base: null
-        sts_token: null
-        swagger: "https://api.viedoc.cn/swagger/index.html"
+      production: 
+        clinic:   "https://clinic.viedoc.cn"
+        web_api:  "https://api.viedoc.cn"
+        sts:      "https://sts.viedoc.cn"
+        swagger:  "https://api.viedoc.cn/swagger/index.html"
         wcf_wsdl: "https://api.viedoc.cn/HelipadService.svc?wsdl"
-      training:
-        clinic: "https://clinictraining.viedoc.cn/"
-        web_api_base: "https://apitraining.viedoc.cn"
-        sts_base: "https://ststraining.viedoc.cn"
-        sts_token: "https://ststraining.viedoc.cn/connect/token"
-        swagger: "https://apitraining.viedoc.cn/swagger/index.html"
-        wcf_wsdl: "https://apitraining.viedoc.cn/HelipadService.svc?wsdl"
-
+      training: 
+        clinic:   "https://clinictraining.viedoc.cn"
+        web_api:  "https://apitraining.viedoc.cn"
+        sts:      "https://ststraining.viedoc.cn"
+        swagger:  "https://apitraining.viedoc.cn/swagger/index.html"
+        wcf_wsdl: "https://apitraining.viedoc.cn/HelipadService.svc?wsdl"    
   usa:
-    label: "USA"
     environments:
-      production:
-        clinic: "https://clinic.us.viedoc.com/"
-        web_api_base: "https://api.us.viedoc.com"
-        sts_base: "https://sts.us.viedoc.com"
-        sts_token: "https://sts.us.viedoc.com/connect/token"
-        swagger: "https://api.us.viedoc.com/swagger/index.html"
+      production: 
+        clinic:   "https://clinic.us.viedoc.com"
+        web_api:  "https://api.us.viedoc.com"
+        sts:      "https://sts.us.viedoc.com"
+        swagger:  "https://api.us.viedoc.com/swagger/index.html"
         wcf_wsdl: "https://api.us.viedoc.com/HelipadService.svc?wsdl"
-      training:
-        clinic: "https://clinictraining.us.viedoc.com/"
-        web_api_base: "https://apitraining.us.viedoc.com"
-        sts_base: "https://ststraining.us.viedoc.com"
-        sts_token: "https://ststraining.us.viedoc.com/connect/token"
-        swagger: "https://apitraining.us.viedoc.com/swagger/index.html"
+      training: 
+        clinic:   "https://clinictraining.us.viedoc.com"
+        web_api:  "https://apitraining.us.viedoc.com"
+        sts:      "https://ststraining.us.viedoc.com"
+        swagger:  "https://apitraining.us.viedoc.com/swagger/index.html"
         wcf_wsdl: "https://apitraining.us.viedoc.com/HelipadService.svc?wsdl"
