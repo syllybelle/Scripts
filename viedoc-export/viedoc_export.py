@@ -10,25 +10,45 @@ import logging  # For logging information
 # Configure logging to display info messages with a specific format
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_EXPORT_MODEL_PATH = os.path.join(SCRIPT_DIR, "export_model.example.json")
+
+
 def load_export_model(export_model_input):
     """
     Load export model from a file or use the provided string.
     
     Args:
-    - export_model_input (str): Either a JSON string or a file path starting with '@'
+    - export_model_input (str): Either a file path or inline JSON string
     
     Returns:
     - str: JSON string representing the export model
     """
-    if export_model_input.startswith("@"):
-        # Load from file
-        file_path = export_model_input[1:]
-        logging.info("Loading export model from file: %s", file_path)
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    else:
-        # Treat as inline JSON
+    if not export_model_input:
+        logging.info("No export model provided. Using default file: %s", DEFAULT_EXPORT_MODEL_PATH)
+        export_model_input = DEFAULT_EXPORT_MODEL_PATH
+    
+    if not export_model_input.endswith(".json"):
         return export_model_input
+    
+    candidate_paths = [export_model_input]
+    file_path = None
+
+    if not os.path.isabs(export_model_input):
+        candidate_paths.append(os.path.join(SCRIPT_DIR, export_model_input))
+
+    for path in candidate_paths:
+        if os.path.isfile(path):
+            file_path = path
+    if not file_path:
+        checked_paths = ", ".join(candidate_paths)
+        raise FileNotFoundError(f"Export model file not found. Checked: {checked_paths}")
+    logging.info("Loading export model from file: %s", file_path)
+    with open(file_path, 'r', encoding='utf-8') as f:
+        json_data = json.load(f)
+
+    # Treat as inline JSON
+    return json.dumps(json_data)
 
 def get_token(url, client_id, client_secret):
     """
@@ -211,7 +231,15 @@ if __name__ == "__main__":
     parser.add_argument("--api_url", required=True, help="API URL")
     parser.add_argument("--client_id", required=True, help="Client ID")
     parser.add_argument("--client_secret", required=True, help="Client secret")
-    parser.add_argument("--export_model", required=True, help="Inline JSON or a file path starting with @ (e.g., @export_model.json)")
+    parser.add_argument(
+        "--export_model",
+        required=False,
+        default=None,
+        help=(
+            "Inline JSON or a JSON file path. PowerShell users should pass a plain path "
+            "(for example, export_model.example.json). Defaults to the bundled example file."
+        ),
+    )
     parser.add_argument("--extract_zip", required=False, default="Y", choices=["Y", "N"], help="Extract zip file (Y/N)")
     parser.add_argument("--remove_prefix", required=False, default="Y", choices=["Y", "N"], help="Remove prefix from extracted files (Y/N)")
 
