@@ -28,7 +28,7 @@ python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/to
 ```
 
 ```sh
-python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/token" --api_url "https://v4apitraining.viedoc.net" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
+python viedoc_export.py --token_url "https://v4ststraining.viedoc.net/connect/token" --api_url "https://v4apitraining.viedoc.net" --client_id "84731234-1234-1234-1234-1234cf658d98" --client_secret "FAaaTZaxxxxxxxxxxxxxxxxxxxxxxJzfw" --export_model @export_model.example.json --output_path "C:/Users/<you>/ViedocExports"
 ```
 
 - For R:
@@ -62,6 +62,42 @@ Rscript viedoc_export.R --token_url "https://v4ststraining.viedoc.net/connect/to
 - --poll_interval_seconds: (Optional) Seconds between export status checks. Default is 10.
 - --max_wait_seconds: (Optional) Maximum total wait time for the export to become ready. Default is 600.
 
+### Shell Quoting Notes
+
+The `--export_model` parameter accepts JSON. Proper quoting depends on your shell:
+
+**Linux/macOS (bash/zsh):**
+```sh
+python viedoc_export.py ... --export_model '{"outputFormat":"CSV"}'
+```
+Use single quotes to preserve double quotes in the JSON.
+
+**Windows (PowerShell):**
+```powershell
+python viedoc_export.py ... --export_model '{\"outputFormat\":\"CSV\"}'
+```
+Escape inner double quotes with backslashes, or use:
+```powershell
+python viedoc_export.py ... --export_model "{'outputFormat':'CSV'}"
+```
+
+**Windows (cmd.exe):**
+```cmd
+python viedoc_export.py ... --export_model "{\"outputFormat\":\"CSV\"}"
+```
+Escape inner double quotes with backslashes.
+
+**Recommended approach (all platforms):**
+Use a JSON file to avoid quoting issues entirely:
+```sh
+python viedoc_export.py ... --export_model export_model.json
+```
+or
+```sh
+python viedoc_export.py ... --export_model @export_model.json
+```
+
+Example JSON file:
 ```
 {"outputFormat":"CSV","includeVisitDates":false,"includeEditStatus":false,"includeSignatures":false,"includeReviewStatus":false,"includeSdv":false,"includeQueries":false,"includeQueryHistory":false,"includeSubjectStatus":false,"includePendingForms":false}
 ```
