@@ -1,0 +1,296 @@
+# inferred from state as at 2026-08-07
+
+openapi: 3.1.0
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+
+info:
+  title: Viedoc Data Export
+  version: "4.92"
+  description: Data export contract aligned with Viedoc data structure version 4.92.
+  x-viedoc-data-structure-version: "4.92"
+  x-viedoc-web-api-version: "2022-01-01"
+
+servers:
+  - url: https://v4api.viedoc.net
+    description: EU production
+  - url: https://v4apitraining.viedoc.net
+    description: EU training
+
+security:
+  - viedocOAuth: []
+
+paths:
+  /clinic/dataexport/start:
+    post:
+      operationId: startDataExport
+      summary: Start a data export
+      parameters:
+        - $ref: "#/components/parameters/ApiVersion"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportRequest"
+      responses:
+        "200":
+          description: Export started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartExportResponse"
+        "400": {description: Invalid export request}
+        "401": {description: Invalid or missing access token}
+        "403": {description: Client not authorized for export}
+
+components:
+
+  parameters:
+    ApiVersion:
+      name: api-version
+      in: query
+      required: false
+      description: Viedoc Web API endpoint version. Accept-Version header may be used instead.
+      schema: {type: string, default: "2022-01-01"}
+
+  securitySchemes:
+    viedocOAuth:
+      type: oauth2
+      description: >
+        OAuth 2.0 Client Credentials. Replace tokenUrl with the exact Token URL
+        supplied for the Web API client in Viedoc Admin.
+      flows:
+        clientCredentials:
+          tokenUrl: https://token-url-from-viedoc-admin.invalid/connect/token
+          scopes: {}
+
+  schemas:
+
+    StringIds:
+      type: array
+      items: {type: string}
+
+    UuidIds:
+      type: array
+      items: {type: string, format: uuid}
+
+    StartExportResponse:
+      type: object
+      required: [exportId]
+      properties:
+        exportId: {type: string}
+
+    ExportRequest:
+      type: object
+      title: Viedoc 4.92 export request
+
+      properties:
+
+        # --- Scope / record filters ---
+        roleId: {type: string, description: "Optional RoleDef OID; must match the API client's export-scope role."}
+        culture: {type: string, default: en, description: "Two-letter export language code."}
+        siteIds: {$ref: "#/components/schemas/UuidIds", description: "Default: all sites."}
+        subjects: {$ref: "#/components/schemas/StringIds", description: "Subject display IDs / SubjectKey values. Default: all."}
+        eventDefIds: {$ref: "#/components/schemas/StringIds", description: "Default: all events."}
+        formDefIds: {$ref: "#/components/schemas/StringIds", description: "Default: all forms."}
+        itemDefIds: {$ref: "#/components/schemas/StringIds", description: "Default: all items. Independent of formDefIds."}
+
+        timePeriodDateType: {type: string, enum: [SystemDate, EventDate]}
+        timePeriodOption: {type: string, enum: [Between, Until, From]}
+        fromDate: {type: string, format: date-time, description: "Default when applicable: 00:00 today."}
+        toDate: {type: string, format: date-time, description: "Default when applicable: 00:00 today."}
+
+        includeSignedOnly: {type: boolean, default: true, description: "Not applicable to XML/ODM."}
+        includeNotSigned: {type: boolean, default: true, description: "Not applicable to XML/ODM."}
+        includeSDVPerformedOrNA: {type: boolean, default: true, description: "Not applicable to XML/ODM."}
+        includeSDVPending: {type: boolean, default: true, description: "Not applicable to XML/ODM."}
+        includePendingForms: {type: boolean, default: false, description: "Excel/CSV only."}
+
+        # --- Content ---
+        includeQueries: {type: boolean, default: false, description: "Excel/CSV/XML; not PDF."}
+        includeQueryHistory: {type: boolean, default: false, description: "Requires queries. XML/ODM includes query history automatically."}
+
+        includeReviewStatus: {type: boolean, default: false}
+        includeSignatures: {type: boolean, default: false, description: "Requires review status."}
+
+        includeVisitDates: {type: boolean, default: false, description: "Not PDF."}
+        includeMedicalCoding: {type: boolean, default: false, description: "Not PDF."}
+        includeMedicalCodingHistory: {type: boolean, description: "Requires medical coding; Excel/CSV only."}
+        includeEditStatus: {type: boolean, default: false}
+        includeSubjectStatus: {type: boolean, default: false, description: "Not PDF."}
+        includeSdv: {type: boolean, default: false}
+
+        includeHistory: {type: boolean, default: false, description: "Excel/CSV + RowPerValue."}
+        includeUploadedFiles: {type: boolean}
+
+        includeBookletStatus: {type: boolean, default: false, description: "PMS studies only."}
+        includeBookletStatusHistory: {type: boolean, default: false, description: "Requires booklet status; Excel/CSV only."}
+
+        # --- Generation ---
+        outputFormat: {type: string, enum: [Excel, CSV, PDF, XML]}
+        rowLayout: {type: string, enum: [RowPerPatient, RowPerActivity, RowPerValue], default: RowPerActivity, description: "Excel/CSV only."}
+        grouping: {type: string, enum: [GroupByForm, None], default: GroupByForm, description: "Excel/CSV only."}
+
+        includeSasScript: {type: boolean, default: false, description: "CSV + GroupByForm + RowPerActivity only."}
+        includeViedocExtensions: {type: boolean, default: false, description: "XML/ODM only."}
+        sasCompliantXml: {type: boolean, description: "XML/ODM only."}
+        repeatingGroupsAsSeparateForm: {type: boolean, default: true, description: "Excel/CSV + GroupByForm + RowPerActivity only."}
+
+        embedFonts: {type: boolean, description: "PDF only."}
+        excludeDeleted: {type: boolean, description: "PDF only."}
+        formatEctd: {type: boolean, description: "PDF only; FDA eCTD format."}
+        createPdfA: {type: boolean, description: "PDF only."}
+        splitPerSubject: {type: boolean, description: "PDF only."}
+
+        exportVersion:
+          type: string
+          default: latest
+          description: >
+            Export/output compatibility version. Independent of this
+            contract's Viedoc data structure version (4.92).
+
+      dependentRequired:
+        timePeriodDateType: [timePeriodOption]
+        timePeriodOption: [timePeriodDateType]
+
+      allOf:
+
+        # At least one signature-state filter must remain enabled.
+        - not:
+            properties:
+              includeSignedOnly: {const: false}
+              includeNotSigned: {const: false}
+            required: [includeSignedOnly, includeNotSigned]
+
+        # At least one SDV-state filter must remain enabled.
+        - not:
+            properties:
+              includeSDVPerformedOrNA: {const: false}
+              includeSDVPending: {const: false}
+            required: [includeSDVPerformedOrNA, includeSDVPending]
+
+        # Queries: not PDF.
+        - if:
+            properties: {includeQueries: {const: true}}
+            required: [includeQueries]
+          then:
+            properties: {outputFormat: {enum: [Excel, CSV, XML]}}
+            required: [outputFormat]
+
+        # Query history requires queries.
+        - if:
+            properties: {includeQueryHistory: {const: true}}
+            required: [includeQueryHistory]
+          then:
+            properties: {includeQueries: {const: true}}
+            required: [includeQueries]
+
+        # Signatures require review status.
+        - if:
+            properties: {includeSignatures: {const: true}}
+            required: [includeSignatures]
+          then:
+            properties: {includeReviewStatus: {const: true}}
+            required: [includeReviewStatus]
+
+        # These content types are unavailable in PDF.
+        - if:
+            anyOf:
+              - {properties: {includeVisitDates: {const: true}}, required: [includeVisitDates]}
+              - {properties: {includeMedicalCoding: {const: true}}, required: [includeMedicalCoding]}
+              - {properties: {includeSubjectStatus: {const: true}}, required: [includeSubjectStatus]}
+              - {properties: {includeBookletStatus: {const: true}}, required: [includeBookletStatus]}
+          then:
+            properties: {outputFormat: {enum: [Excel, CSV, XML]}}
+            required: [outputFormat]
+
+        # Pending forms: Excel/CSV.
+        - if:
+            properties: {includePendingForms: {const: true}}
+            required: [includePendingForms]
+          then:
+            properties: {outputFormat: {enum: [Excel, CSV]}}
+            required: [outputFormat]
+
+        # Medical coding history.
+        - if:
+            properties: {includeMedicalCodingHistory: {const: true}}
+            required: [includeMedicalCodingHistory]
+          then:
+            properties:
+              includeMedicalCoding: {const: true}
+              outputFormat: {enum: [Excel, CSV]}
+            required: [includeMedicalCoding, outputFormat]
+
+        # Booklet status history.
+        - if:
+            properties: {includeBookletStatusHistory: {const: true}}
+            required: [includeBookletStatusHistory]
+          then:
+            properties:
+              includeBookletStatus: {const: true}
+              outputFormat: {enum: [Excel, CSV]}
+            required: [includeBookletStatus, outputFormat]
+
+        # Audit/history export.
+        - if:
+            properties: {includeHistory: {const: true}}
+            required: [includeHistory]
+          then:
+            properties:
+              outputFormat: {enum: [Excel, CSV]}
+              rowLayout: {const: RowPerValue}
+            required: [outputFormat, rowLayout]
+
+        # SAS export.
+        - if:
+            properties: {includeSasScript: {const: true}}
+            required: [includeSasScript]
+          then:
+            properties:
+              outputFormat: {const: CSV}
+              rowLayout: {const: RowPerActivity}
+              grouping: {const: GroupByForm}
+            required: [outputFormat, rowLayout, grouping]
+
+        # Repeating groups as separate form/file.
+        - if:
+            properties: {repeatingGroupsAsSeparateForm: {const: true}}
+            required: [repeatingGroupsAsSeparateForm]
+          then:
+            properties:
+              outputFormat: {enum: [Excel, CSV]}
+              rowLayout: {const: RowPerActivity}
+              grouping: {const: GroupByForm}
+            required: [outputFormat, rowLayout, grouping]
+
+        # XML-only options.
+        - if:
+            anyOf:
+              - {properties: {includeViedocExtensions: {const: true}}, required: [includeViedocExtensions]}
+              - {properties: {sasCompliantXml: {const: true}}, required: [sasCompliantXml]}
+          then:
+            properties: {outputFormat: {const: XML}}
+            required: [outputFormat]
+
+        # PDF-only options.
+        - if:
+            anyOf:
+              - {properties: {embedFonts: {const: true}}, required: [embedFonts]}
+              - {properties: {excludeDeleted: {const: true}}, required: [excludeDeleted]}
+              - {properties: {formatEctd: {const: true}}, required: [formatEctd]}
+              - {properties: {createPdfA: {const: true}}, required: [createPdfA]}
+              - {properties: {splitPerSubject: {const: true}}, required: [splitPerSubject]}
+          then:
+            properties: {outputFormat: {const: PDF}}
+            required: [outputFormat]
+
+        # Review status isn't output for one-row-per-item/value Excel/CSV.
+        - not:
+            properties:
+              includeReviewStatus: {const: true}
+              outputFormat: {enum: [Excel, CSV]}
+              rowLayout: {const: RowPerValue}
+            required: [includeReviewStatus, outputFormat, rowLayout]
+
+      additionalProperties: false
